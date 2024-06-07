@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    public static PlayerController instance;
     Rigidbody rb;
     Animator anim;
 
@@ -12,35 +13,45 @@ public class PlayerController : MonoBehaviour
 
     float horizontal;
     float vertical;
-    bool isGround = false;
+    public  bool isGround = false;
 
     float xMinBound = -18f;
-    float xMaxBound = 18f;  // Assuming you want a max bound for x as well
+    float xMaxBound = 18f;
     float zMinBound = -21f;
-    float zMaxBound = 21f;  // Assuming you want a max bound for z as well
+    float zMaxBound = 21f;
+
+    [SerializeField] Joystick Joystick;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         anim = GetComponent<Animator>();
+        instance = this;
+    }
+
+    private void FixedUpdate()
+    {
+        Movement();
     }
 
     // Update is called once per frame
     void Update()
     {
-        Movement();
-        Jump();
         LimitMovement();
     }
-
     void Movement()
     {
-        horizontal = Input.GetAxis("Horizontal");
-        vertical = Input.GetAxis("Vertical");
+        float joystickHorizontalMove = Joystick.Horizontal;
+        float joystickVerticalMove = Joystick.Vertical;
 
-        transform.Translate(Vector3.forward * vertical * Time.deltaTime * speed);
-        transform.Translate(Vector3.right * horizontal * Time.deltaTime * speed);
+        Debug.Log("Joystick Input: " + joystickHorizontalMove + ", " + joystickVerticalMove);
+
+        // Calculating movement dir based on joystick input
+        Vector3 movement = new Vector3(joystickHorizontalMove, 0.0f, joystickVerticalMove);
+        movement.Normalize();
+
+        transform.Translate(movement * speed * Time.deltaTime);
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -61,9 +72,9 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void Jump()
+   public void Jump()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && isGround)
+        if (isGround)
         {
             rb.AddForce(Vector3.up * jumpSpeed, ForceMode.Impulse);
         }
@@ -71,7 +82,7 @@ public class PlayerController : MonoBehaviour
 
     public void HitByRay()
     {
-        Debug.Log("Laser Hit");
+        GameManager.instance.GameLoseMethod();
     }
 
     void LimitMovement()

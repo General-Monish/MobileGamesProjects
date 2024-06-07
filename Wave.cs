@@ -8,7 +8,6 @@ public class Wave : MonoBehaviour
     [SerializeField] Transform[] spawnPoints;
     [SerializeField] float waveInterval = 5f; // Time between waves
     [SerializeField] int initialEnemyCount = 0;
-    [SerializeField] float enemySpeedIncrease = 0.5f;
 
     int currentWave = 0;
     List<GameObject> enemies = new List<GameObject>();
@@ -29,7 +28,7 @@ public class Wave : MonoBehaviour
         }
 
         // All waves completed, player wins
-        Debug.Log("Player wins!");
+        GameManager.instance.GameWonMethod();
         // Add win condition logic here
     }
 
