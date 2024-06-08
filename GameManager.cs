@@ -51,6 +51,9 @@ public class GameManager : MonoBehaviour
 
     public void ResumeButton()
     {
+        pauseButton.SetActive(true);
+        jumpButton.SetActive(true);
+        joystick.SetActive(true);
         pausePanel.SetActive(false);
         audioSource.Play();
         Time.timeScale = 1.0f;

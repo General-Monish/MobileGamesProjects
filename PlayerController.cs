@@ -28,6 +28,10 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         anim = GetComponent<Animator>();
         instance = this;
+
+        rb.drag = 0f;
+        rb.angularDrag = 0f;
+        rb.useGravity = true;
     }
 
     private void FixedUpdate()
@@ -45,13 +49,21 @@ public class PlayerController : MonoBehaviour
         float joystickHorizontalMove = Joystick.Horizontal;
         float joystickVerticalMove = Joystick.Vertical;
 
-        Debug.Log("Joystick Input: " + joystickHorizontalMove + ", " + joystickVerticalMove);
 
         // Calculating movement dir based on joystick input
         Vector3 movement = new Vector3(joystickHorizontalMove, 0.0f, joystickVerticalMove);
         movement.Normalize();
 
         transform.Translate(movement * speed * Time.deltaTime);
+
+        bool isRunning = joystickHorizontalMove != 0 || joystickVerticalMove != 0;
+        anim.SetBool("run", isRunning);
+
+        if (isRunning)
+        {
+            Quaternion toRotation = Quaternion.LookRotation(movement, Vector3.up);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, speed * Time.deltaTime * 100);
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -76,7 +88,8 @@ public class PlayerController : MonoBehaviour
     {
         if (isGround)
         {
-            rb.AddForce(Vector3.up * jumpSpeed, ForceMode.Impulse);
+            anim.SetTrigger("jump");
+            rb.AddForce(Vector3.up * jumpSpeed,ForceMode.Impulse);
         }
     }
 
